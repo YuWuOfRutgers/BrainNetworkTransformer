@@ -12,7 +12,6 @@ from source.components import LRScheduler
 import logging
 from .training import Train
 
-
 class FBNetTrain(Train):
 
     def __init__(self, cfg: DictConfig,

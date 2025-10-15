@@ -11,5 +11,6 @@ log_path: result
 save_learnable_graph: False
 
 # wandb
-wandb_entity: eggroup
-project: brainnetworktransformer
+wandb_entity: null #brain-image-rutgers # Set to your wandb username or null for offline mode
+project: baseline_models
+wandb_mode: offline  # Set to 'online' if you want to use wandb cloud logging

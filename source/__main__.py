@@ -35,8 +35,11 @@ def main(cfg: DictConfig):
     # _{cfg.optimizer[0].lr_scheduler.mode}"
 
     for _ in range(cfg.repeat_time):
+        # Use offline mode if specified in config
+        wandb_mode = cfg.get('wandb_mode', 'online')
         run = wandb.init(project=cfg.project, entity=cfg.wandb_entity, reinit=True,
-                         group=f"{group_name}", tags=[f"{cfg.dataset.name}"])
+                         group=f"{group_name}", tags=[f"{cfg.dataset.name}"],
+                         mode=wandb_mode)
         model_training(cfg)
 
         run.finish()

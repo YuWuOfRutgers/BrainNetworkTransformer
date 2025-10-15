@@ -1,0 +1,15 @@
+# Python version requirement (for reference)
+# Requires: Python 3.9
+# run with pip install -r requirement.txt
+
+# PyTorch + CUDA 11.3 (from official PyTorch wheel index)
+torch==1.12.1+cu113
+torchvision==0.13.1+cu113
+torchaudio==0.12.1
+--extra-index-url https://download.pytorch.org/whl/cu113
+
+# Other dependencies
+wandb==0.13.1
+scikit-learn==1.1.1
+pandas==1.4.3
+hydra-core==1.2.0
