@@ -1,82 +1,134 @@
-# Brain Network Transformer
+# Forked from Project BNT
+https://github.com/Wayfear/BrainNetworkTransformer
 
-Brain Network Transformer is the open-source implementation of the NeurIPS 2022 paper [Brain Network Transformer](https://arxiv.org/abs/2210.06681).
+# Quick Start: Synthetic Dataset
 
+## TL;DR - Run This Now! 🚀
 
-[![stars - BrainNetworkTransformer](https://img.shields.io/github/stars/Wayfear/BrainNetworkTransformer?style=social)](https://github.com/Wayfear/BrainNetworkTransformer)
-[![forks - BrainNetworkTransformer](https://img.shields.io/github/forks/Wayfear/BrainNetworkTransformer?style=social)](https://github.com/Wayfear/BrainNetworkTransformer)
-![language](https://img.shields.io/github/languages/top/Wayfear/BrainNetworkTransformer?color=lightgrey)
-![lines](https://img.shields.io/tokei/lines/github/Wayfear/BrainNetworkTransformer?color=red)
-![license](https://img.shields.io/github/license/Wayfear/BrainNetworkTransformer)
+```bash
+cd /home/yw828/Desktop/BNT/BrainNetworkTransformer
+
+# Test the dataset
+python test_synthetic_dataset.py
+
+# Quick 2-epoch training (30 seconds)
+python -m source dataset=SYNTHETIC model=brainnetcnn datasz=100p repeat_time=1 training.epochs=2
+```
+
 ---
 
+## Dataset Info
 
-## Dataset
+| Property | Value |
+|----------|-------|
+| Samples | 1000 |
+| ROIs | 53 |
+| Timepoints | 200 |
+| Classes | 2 (balanced) |
+| File size | 51 MB |
 
-Download the ABIDE dataset from [here](https://drive.google.com/file/d/14UGsikYH_SQ-d_GvY2Um2oEHw3WNxDY3/view?usp=sharing).
+---
+if the dataset only contains ROIs, then in source/dataset/synthetic.py, let the impored timeseires=[]. BNT, transformer, BrainCNN doesn't use this feature in training. 
+## Common Commands
 
-## Usage
+### 1. Quick Sanity Check (30 sec)
+```bash
+python -m source dataset=SYNTHETIC model=brainnetcnn training.epochs=2
+```
 
-1. Change the *path* attribute in file *source/conf/dataset/ABIDE.yaml* to the path of your dataset.
+### 2. Full Training with BrainNetCNN
+```bash
+python -m source dataset=SYNTHETIC model=brainnetcnn datasz=100p
+```
 
-2. Run the following command to train the model.
+### 3. Train BNT (Brain Network Transformer)
+```bash
+python -m source dataset=SYNTHETIC model=bnt datasz=100p
+```
+
+### 4. Compare All Models
+```bash
+python -m source --multirun dataset=SYNTHETIC model=bnt,brainnetcnn,transformer datasz=100p
+```
+
+### 5. Different Data Percentages
+```bash
+python -m source --multirun dataset=SYNTHETIC model=brainnetcnn datasz=10p,50p,100p
+```
+
+### 6. Custom Batch Size
+```bash
+python -m source dataset=SYNTHETIC model=brainnetcnn dataset.batch_size=32
+```
+
+---
+
+## Expected Output (2 epochs)
+
+```
+[INFO] #model params: 274717
+[INFO] Epoch[0/2] | Train Loss: 11.093 | Train Accuracy: 25.145% | ...
+[INFO] Epoch[1/2] | Train Loss: 11.094 | Train Accuracy: 26.599% | ...
+✓ Training complete!
+```
+
+**Note**: Performance is random (synthetic data) - this is expected!
+
+---
+
+## File Locations
+
+```
+BNT/
+├── dataset/
+│   ├── synthetic_abide.npy              # The dataset (51 MB)
+│   ├── generate_synthetic_dataset.py    # Generation script
+│   └── SYNTHETIC_DATASET_README.md      # Full documentation
+│
+└── BrainNetworkTransformer/
+    ├── source/
+    │   ├── conf/dataset/SYNTHETIC.yaml  # Config
+    │   └── dataset/synthetic.py         # Loader
+    │
+    ├── test_synthetic_dataset.py        # Test script
+    ├── SYNTHETIC_DATASET_SETUP.md       # Setup guide
+    └── QUICK_START_SYNTHETIC.md         # This file
+```
+
+---
+
+## Troubleshooting One-Liners
 
 ```bash
-python -m source --multirun datasz=100p model=bnt,fbnetgen,brainnetcnn,transformer dataset=ABIDE,ABCD repeat_time=5 preprocess=mixup
+# Verify dataset loads
+python test_synthetic_dataset.py
+
+# Check file exists
+ls -lh /home/yw828/Desktop/BNT/dataset/synthetic_abide.npy
+
+# List available datasets
+ls source/conf/dataset/
+
+# Verify config
+cat source/conf/dataset/SYNTHETIC.yaml
+
+# Test with minimal settings
+python -m source dataset=SYNTHETIC model=brainnetcnn training.epochs=1 dataset.batch_size=8
 ```
 
-- **datasz**, default=(10p, 20p, 30p, 40p, 50p, 60p, 70p, 80p, 90p, 100p). How much data to use for training. The value is a percentage of the total number of samples in the dataset. For example, 10p means 10% of the total number of samples in the training set.
+---
 
-- **model**, default=(bnt,fbnetgen,brainnetcnn,transformer). Which model to use. The value is a list of model names. For example, bnt means Brain Network Transformer, fbnetgen means FBNetGen, brainnetcnn means BrainNetCNN, transformer means VanillaTF.
+## Remember
 
-- **dataset**, default=(ABIDE,ABCD). Which dataset to use. The value is a list of dataset names. For example, ABIDE means ABIDE, ABCD means ABCD.
+✅ Use for: Code testing, debugging, algorithm development
+❌ Don't use for: Scientific validation, real results
 
-- **repeat_time**, default=5. How many times to repeat the experiment. The value is an integer. For example, 5 means repeat 5 times.
+The data is **randomly generated** - performance metrics are meaningless!
 
-- **preprocess**, default=(mixup, non_mixup). Which preprocess to applied. The value is a list of preprocess names. For example, mixup means mixup, non_mixup means the dataset is feeded into models without preprocess.
+---
 
+## Need Help?
 
-## Installation
-
-```bash
-conda create --name bnt python=3.9
-conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
-conda install -c conda-forge wandb
-pip install hydra-core --upgrade
-conda install -c conda-forge scikit-learn
-conda install -c conda-forge pandas
-```
-
-
-## Dependencies
-
-  - python=3.9
-  - cudatoolkit=11.3
-  - torchvision=0.13.1
-  - pytorch=1.12.1
-  - torchaudio=0.12.1
-  - wandb=0.13.1
-  - scikit-learn=1.1.1
-  - pandas=1.4.3
-  - hydra-core=1.2.0
-
-
-## Regression Performance
-
-We show regression performance which is not included in the paper. The results are the test MSE for the prediction of NIH Toolbox Picture Vocabulary Test Age 3+ v2.0 Uncorrected Standard Score, which is the "nihtbx_picvocab_uncorrected" in the [page](https://nda.nih.gov/data_structure.html?short_name=tlbx_cogsum01). From this figure, we can see that the performance of BNT (50.3) is the best among these models, with a large margin.
-
-![mse](figure/mse.png)
-
-
-## Citation
-
-Please cite our paper if you find this code useful for your work:
-```bibtex
-@inproceedings{
-  kan2022bnt,
-  title={BRAIN NETWORK TRANSFORMER},
-  author={Xuan Kan and Wei Dai and Hejie Cui and Zilong Zhang and Ying Guo and Carl Yang},
-  booktitle={Advances in Neural Information Processing Systems},
-  year={2022},
-}
-```
+- Full docs: `SYNTHETIC_DATASET_SETUP.md`
+- Dataset details: `BNT/dataset/SYNTHETIC_DATASET_README.md`
+- Test script: `python test_synthetic_dataset.py`

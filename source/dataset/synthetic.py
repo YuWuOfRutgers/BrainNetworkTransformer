@@ -24,7 +24,7 @@ def load_synthetic_data(cfg: DictConfig):
         site: [N] site ID array
     """
     data = np.load(cfg.dataset.path, allow_pickle=True).item()
-    final_timeseires = data["timeseires"]
+    final_timeseires = data["timeseires"] # if the .npy doesn't have timeseires, let it to be an empty array.
     final_pearson = data["corr"]
     labels = data["label"]
     site = data['site']
